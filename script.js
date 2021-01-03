@@ -9,20 +9,45 @@ let currentPlayer = "";
 
 function setFirstPlayer() {
     currentPlayer = Math.random() > 0.5 ? player : computer;
+    if(currentPlayer === computer)
+        document.querySelectorAll('.cell')[0].click();
 }
 
-setFirstPlayer();
+document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
+document.querySelector('.game--restart').addEventListener('click', handleRestartGame);
 
 let gameState = ["", "", "", "",
     "", "", "", "",
     "", "", "", "",
     "", "", "", ""];
+    
+const winningConditions = [
+    [0, 1, 2, 3],
+    [4, 5, 6, 7],
+    [8, 9, 10, 11],
+    [12, 13, 14, 15],
+    [0, 4, 8, 12],
+    [1, 5, 9, 13],
+    [2, 6, 10, 14],
+    [3, 7, 11, 15],
+    [0, 5, 10, 15],
+    [3, 6, 9, 12],
+    [0, 1, 4, 5],
+    [1, 2, 5, 6],
+    [2, 3, 6, 7],
+    [4, 5, 8, 9],
+    [5, 6, 9, 10],
+    [6, 7, 10, 11],
+    [8, 9, 12, 13],
+    [9, 10, 13, 14],
+    [10, 11, 14, 15]
+];
+
+setFirstPlayer();
 
 const winningMessage = () => `Player ${currentPlayer} has won!`;
 const drawMessage = () => `Game ended in a draw!`;
-const currentPlayerTurn = () => `It's ${currentPlayer}'s turn`;
 
-statusDisplay.innerHTML = currentPlayerTurn();
 function handleCellPlayed(clickedCell, clickedCellIndex) {
     gameState[clickedCellIndex] = currentPlayer;
     clickedCell.innerHTML = currentPlayer;
@@ -30,7 +55,6 @@ function handleCellPlayed(clickedCell, clickedCellIndex) {
 
 function handlePlayerChange() {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
-    statusDisplay.innerHTML = currentPlayerTurn();
     moveNumber++;
     if(currentPlayer === computer) {
         document.querySelectorAll('.cell')[0].click();
@@ -53,6 +77,7 @@ function handleResultValidation() {
             break
         }
     }
+    
     if (roundWon) {
         statusDisplay.innerHTML = winningMessage();
         gameActive = false;
@@ -68,6 +93,7 @@ function handleResultValidation() {
 
     handlePlayerChange();
 }
+
 function handleCellClick(clickedCellEvent) {
     let clickedCell;
     let clickedCellIndex;
@@ -91,37 +117,11 @@ function handleCellClick(clickedCellEvent) {
 function handleRestartGame() {
     gameActive = true;
     moveNumber = 0;
-    setFirstPlayer();
     gameState = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
-    statusDisplay.innerHTML = currentPlayerTurn();
     document.querySelectorAll('.cell')
         .forEach(cell => cell.innerHTML = "");
+    setFirstPlayer();
 }
-
-document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
-document.querySelector('.game--restart').addEventListener('click', handleRestartGame);
-
-const winningConditions = [
-    [0, 1, 2, 3],
-    [4, 5, 6, 7],
-    [8, 9, 10, 11],
-    [12, 13, 14, 15],
-    [0, 4, 8, 12],
-    [1, 5, 9, 13],
-    [2, 6, 10, 14],
-    [3, 7, 11, 15],
-    [0, 5, 10, 15],
-    [3, 6, 9, 12],
-    [0, 1, 4, 5],
-    [1, 2, 5, 6],
-    [2, 3, 6, 7],
-    [4, 5, 8, 9],
-    [5, 6, 9, 10],
-    [6, 7, 10, 11],
-    [8, 9, 12, 13],
-    [9, 10, 13, 14],
-    [10, 11, 14, 15]
-];
 
 function isMovesLeft(board) {
     for (let i = 0; i < 16; i++)
