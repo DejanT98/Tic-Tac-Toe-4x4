@@ -1,26 +1,18 @@
-const statusDisplay = document.querySelector('.game--status');
+const statusDisplay = document.querySelector('.game-status');
+const currentPlayerDisplay = document.querySelector('.current-player');
+const modal = $('.modal');
+const player = "X";
+const computer = "O";
 
 let gameActive = true;
 let moveNumber = 0;
-
-const player = "X";
-const computer = "O";
 let currentPlayer = "";
-
-function setFirstPlayer() {
-    currentPlayer = Math.random() > 0.5 ? player : computer;
-    if(currentPlayer === computer)
-        document.querySelectorAll('.cell')[0].click();
-}
-
-document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
-document.querySelector('.game--restart').addEventListener('click', handleRestartGame);
 
 let gameState = ["", "", "", "",
     "", "", "", "",
     "", "", "", "",
     "", "", "", ""];
-    
+
 const winningConditions = [
     [0, 1, 2, 3],
     [4, 5, 6, 7],
@@ -43,10 +35,31 @@ const winningConditions = [
     [10, 11, 14, 15]
 ];
 
-setFirstPlayer();
+function setFirstPlayer() {
+    clearInterval(random)
+    currentPlayer = Math.random() > 0.5 ? player : computer;
+    currentPlayerDisplay.innerHTML = currentPlayer;
+    setTimeout(function () {
+        if (currentPlayer === computer)
+            document.querySelectorAll('.cell')[0].click()
+    }, 500);
+}
 
-const winningMessage = () => `Player ${currentPlayer} has won!`;
-const drawMessage = () => `Game ended in a draw!`;
+document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
+document.querySelector('.game-restart').addEventListener('click', handleRestartGame);
+
+let random = setInterval(function () {
+    if (currentPlayerDisplay.textContent === player)
+        currentPlayerDisplay.innerHTML = computer;
+    else
+        currentPlayerDisplay.innerHTML = player;
+}, 100);
+setTimeout(setFirstPlayer, 3000);
+
+const winningMessage = () => 'Čestitamo, pobedili ste';
+const loserMessage = () => 'Izgubili ste, više sreće drugi put';
+const drawMessage = () => 'Nema pobednika';
+const restartMessage = () => '';
 
 function handleCellPlayed(clickedCell, clickedCellIndex) {
     gameState[clickedCellIndex] = currentPlayer;
@@ -56,13 +69,17 @@ function handleCellPlayed(clickedCell, clickedCellIndex) {
 function handlePlayerChange() {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
     moveNumber++;
-    if(currentPlayer === computer) {
-        document.querySelectorAll('.cell')[0].click();
-    } 
+    setTimeout(function () {
+        if (currentPlayer === computer) {
+            document.querySelectorAll('.cell')[0].click();
+        }
+    }, 500);
+    currentPlayerDisplay.innerHTML = currentPlayer;
 }
 
 function handleResultValidation() {
     let roundWon = false;
+    let roundLost = false;
     for (let i = 0; i <= 18; i++) {
         const winCondition = winningConditions[i];
         let a = gameState[winCondition[0]];
@@ -72,14 +89,26 @@ function handleResultValidation() {
         if (a === "" || b === "" || c === "" || d === "") {
             continue;
         }
-        if (a === b && b === c && c === d) {
+        if (a === b && b === c && c === d && d === player) {
             roundWon = true;
             break
         }
+        if (a === b && b === c && c === d && d === computer) {
+            roundLost = true;
+            break
+        }
     }
-    
+
     if (roundWon) {
         statusDisplay.innerHTML = winningMessage();
+        modal.modal();
+        gameActive = false;
+        return;
+    }
+
+    if (roundLost) {
+        statusDisplay.innerHTML = loserMessage();
+        modal.modal();
         gameActive = false;
         return;
     }
@@ -87,6 +116,7 @@ function handleResultValidation() {
     let roundDraw = !gameState.includes("");
     if (roundDraw) {
         statusDisplay.innerHTML = drawMessage();
+        modal.modal();
         gameActive = false;
         return;
     }
@@ -120,6 +150,7 @@ function handleRestartGame() {
     gameState = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
     document.querySelectorAll('.cell')
         .forEach(cell => cell.innerHTML = "");
+    statusDisplay.innerHTML = restartMessage();
     setFirstPlayer();
 }
 
@@ -154,12 +185,12 @@ function minimax(board, depth, isMax, alpha, beta) {
     if (score === 10)
         return score - depth;
 
-    if(score === -10)
+    if (score === -10)
         return score + depth;
 
     if (!isMovesLeft(board) || depth === 5 || moveNumber < 3)
         return 0;
-   
+
     if (isMax) {
         let best = -Infinity;
         for (let i = 0; i < 16; i++) {
@@ -171,7 +202,7 @@ function minimax(board, depth, isMax, alpha, beta) {
                 alpha = Math.max(alpha, best);
                 moveNumber--;
                 board[i] = "";
-                if (beta <= alpha) 
+                if (beta <= alpha)
                     break;
             }
         }
@@ -184,11 +215,11 @@ function minimax(board, depth, isMax, alpha, beta) {
                 moveNumber++;
                 let val = minimax([...board], depth + 1, !isMax, alpha, beta);
                 best = Math.min(best, val);
-                beta = Math.min(beta, best); 
+                beta = Math.min(beta, best);
                 moveNumber--;
                 board[i] = "";
-                if (beta <= alpha) 
-                    break; 
+                if (beta <= alpha)
+                    break;
             }
         }
         return best;
@@ -213,7 +244,7 @@ function findBestMove(board) {
             }
         }
     }
-    for(let i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) {
         if (board[i] === "") {
             board[i] = computer;
             moveNumber++;

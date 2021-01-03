@@ -6,10 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Tic Tac Toe</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 <body>
     <section>
         <h1 class="game--title">Tic Tac Toe</h1>
+        <h2 class="current-player">X</h2>
         <div class="game--container">
             <div data-cell-index="0" class="cell"></div>
             <div data-cell-index="1" class="cell"></div>
@@ -28,8 +32,22 @@
             <div data-cell-index="14" class="cell"></div>
             <div data-cell-index="15" class="cell"></div>
         </div>
-        <h2 class="game--status"></h2>
-        <button class="game--restart">Restart Game</button>
+
+        <div class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Kraj igre</h5>
+                </div>
+                <div class="modal-body">
+                  <p class="game-status"></p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary game-restart" data-dismiss="modal">Igraj ponovo</button>
+                </div>
+              </div>
+            </div>
+          </div>
     </section>
 <script src="script.js"></script>
 </body>
