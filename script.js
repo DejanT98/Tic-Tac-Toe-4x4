@@ -3,7 +3,7 @@ const currentPlayerDisplay = document.querySelector('.current-player');
 const modal = $('.modal');
 const player = "X";
 const computer = "O";
-//
+
 let gameActive = true;
 let moveNumber = 0;
 let currentPlayer = "";
