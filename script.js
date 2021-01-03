@@ -32,6 +32,9 @@ function handlePlayerChange() {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
     statusDisplay.innerHTML = currentPlayerTurn();
     moveNumber++;
+    if(currentPlayer === computer) {
+        document.querySelectorAll('.cell')[0].click();
+    } 
 }
 
 function handleResultValidation() {
