@@ -1,13 +1,22 @@
 const statusDisplay = document.querySelector('.game-status');
 const currentPlayerDisplay = document.querySelector('.current-player');
+const cells = document.querySelectorAll('.cell');
 const modal = $('.modal');
+
+const winningMessage = () => 'Čestitamo, pobedili ste';
+const loserMessage = () => 'Izgubili ste, više sreće drugi put';
+const drawMessage = () => 'Nema pobednika';
+const afterRestartMessage = () => '';
+
+cells.forEach(cell => cell.addEventListener('click', click));
+document.querySelector('.game-restart').addEventListener('click', restartGame);
+
 const player = "X";
 const computer = "O";
 
 let gameActive = true;
 let moveNumber = 0;
 let currentPlayer = "";
-
 let gameState = ["", "", "", "",
     "", "", "", "",
     "", "", "", "",
@@ -35,45 +44,44 @@ const winningConditions = [
     [10, 11, 14, 15]
 ];
 
+let random;
+let firstPlayerCell;
+
 function setFirstPlayer() {
-    clearInterval(random)
+    clearInterval(random);
     currentPlayer = Math.random() > 0.5 ? player : computer;
     currentPlayerDisplay.innerHTML = currentPlayer;
+    computerClick();
+}
+
+function computerClick() {
     setTimeout(function () {
         if (currentPlayer === computer)
-            document.querySelectorAll('.cell')[0].click()
+            cells[0].click();
     }, 500);
 }
 
-document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
-document.querySelector('.game-restart').addEventListener('click', handleRestartGame);
+function setRandomInterval() {
+    random = setInterval(() => {
+        if (currentPlayerDisplay.textContent === player)
+            currentPlayerDisplay.innerHTML = computer;
+        else
+            currentPlayerDisplay.innerHTML = player;
+    }, 100);
+}
 
-let random = setInterval(function () {
-    if (currentPlayerDisplay.textContent === player)
-        currentPlayerDisplay.innerHTML = computer;
-    else
-        currentPlayerDisplay.innerHTML = player;
-}, 100);
+setRandomInterval();
 setTimeout(setFirstPlayer, 3000);
-
-const winningMessage = () => 'Čestitamo, pobedili ste';
-const loserMessage = () => 'Izgubili ste, više sreće drugi put';
-const drawMessage = () => 'Nema pobednika';
-const restartMessage = () => '';
 
 function handleCellPlayed(clickedCell, clickedCellIndex) {
     gameState[clickedCellIndex] = currentPlayer;
     clickedCell.innerHTML = currentPlayer;
 }
 
-function handlePlayerChange() {
+function changePlayer() {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
     moveNumber++;
-    setTimeout(function () {
-        if (currentPlayer === computer) {
-            document.querySelectorAll('.cell')[0].click();
-        }
-    }, 500);
+    computerClick();
     currentPlayerDisplay.innerHTML = currentPlayer;
 }
 
@@ -89,26 +97,40 @@ function handleResultValidation() {
         if (a === "" || b === "" || c === "" || d === "") {
             continue;
         }
-        if (a === b && b === c && c === d && d === player) {
-            roundWon = true;
-            break
-        }
-        if (a === b && b === c && c === d && d === computer) {
-            roundLost = true;
-            break
+        if (a === b && b === c && c === d) {
+            if (d === player) {
+                roundWon = true;
+            } else if (d === computer) {
+                roundLost = true;
+            }
+            document.querySelector(`div[data-cell-index="${winCondition[0]}"]`)
+                .style.background = '#722620';
+            document.querySelector(`div[data-cell-index="${winCondition[1]}"]`)
+                .style.background = '#722620';
+            document.querySelector(`div[data-cell-index="${winCondition[2]}"]`)
+                .style.background = '#722620';
+            document.querySelector(`div[data-cell-index="${winCondition[3]}"]`)
+                .style.background = '#722620';
+            break;
         }
     }
 
     if (roundWon) {
         statusDisplay.innerHTML = winningMessage();
-        modal.modal();
+        modal.modal({
+            backdrop: 'static',
+            keyboard: false
+        });
         gameActive = false;
         return;
     }
 
     if (roundLost) {
         statusDisplay.innerHTML = loserMessage();
-        modal.modal();
+        modal.modal({
+            backdrop: 'static',
+            keyboard: false
+        });
         gameActive = false;
         return;
     }
@@ -121,10 +143,10 @@ function handleResultValidation() {
         return;
     }
 
-    handlePlayerChange();
+    changePlayer();
 }
 
-function handleCellClick(clickedCellEvent) {
+function click(clickedCellEvent) {
     let clickedCell;
     let clickedCellIndex;
     if (currentPlayer === player) {
@@ -132,6 +154,9 @@ function handleCellClick(clickedCellEvent) {
         clickedCellIndex = parseInt(
             clickedCell.getAttribute('data-cell-index')
         );
+        if (moveNumber === 0) {
+            firstPlayerCell = clickedCellIndex;
+        }
     } else {
         clickedCellIndex = findBestMove([...gameState]);
         clickedCell = document.querySelector(`div[data-cell-index="${clickedCellIndex}"]`);
@@ -144,14 +169,16 @@ function handleCellClick(clickedCellEvent) {
     handleCellPlayed(clickedCell, clickedCellIndex);
     handleResultValidation();
 }
-function handleRestartGame() {
+
+function restartGame() {
     gameActive = true;
     moveNumber = 0;
     gameState = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
-    document.querySelectorAll('.cell')
-        .forEach(cell => cell.innerHTML = "");
-    statusDisplay.innerHTML = restartMessage();
-    setFirstPlayer();
+    cells.forEach(cell => cell.innerHTML = "");
+    cells.forEach(cell => cell.style.background = '#30110D');
+    statusDisplay.innerHTML = afterRestartMessage();
+    setRandomInterval();
+    setTimeout(setFirstPlayer, 3000);
 }
 
 function isMovesLeft(board) {
@@ -227,6 +254,10 @@ function minimax(board, depth, isMax, alpha, beta) {
 }
 
 function findBestMove(board) {
+    if (firstPlayerCell === 10 && moveNumber === 1) {
+        return 9;
+    }
+
     let bestVal = -Infinity;
     let index = -1;
 

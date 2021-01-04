@@ -1,5 +1,7 @@
 body {
     font-family: "Arial", sans-serif;
+    color: #F2BC94 !important;
+    background-color:#722620 !important;
 }
 
 section {
@@ -14,12 +16,21 @@ section {
 }
 
 .cell {
+    background-color: #30110D;
+    color: #F2BC94;
     font-family: "Permanent Marker", cursive;
-    width: 100px;
-    height: 100px;
-    box-shadow: 0 0 0 1px #333333;
-    border: 1px solid #333333;
+    width: 102px;
+    height: 102px;
+    border: 1px solid #F2BC94;
     cursor: pointer;
-    line-height: 100px;
+    line-height: 102px;
     font-size: 60px;
+}
+
+.modal {
+    color: #722620;
+}
+
+.btn {
+    background-color: #722620 !important;
 }
