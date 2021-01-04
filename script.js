@@ -157,9 +157,11 @@ function click(clickedCellEvent) {
         if (moveNumber === 0) {
             firstPlayerCell = clickedCellIndex;
         }
-    } else {
+    } else if (currentPlayer === computer) {
         clickedCellIndex = findBestMove([...gameState]);
         clickedCell = document.querySelector(`div[data-cell-index="${clickedCellIndex}"]`);
+    } else {
+        return;
     }
 
     if (gameState[clickedCellIndex] !== "" || !gameActive) {
