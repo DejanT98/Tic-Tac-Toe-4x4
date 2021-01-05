@@ -111,10 +111,10 @@ function handleCellPlayed(clickedCell, clickedCellIndex) {
 function changePlayer() {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
     moveNumber++;
-    currentPlayerDisplay.innerHTML = currentPlayer;
     if (currentPlayer === computer) {
         computerClick();
     }
+    currentPlayerDisplay.innerHTML = currentPlayer;
 }
 
 /**
@@ -218,6 +218,7 @@ function click(clickedCellEvent) {
 function restartGame() {
     gameActive = true;
     moveNumber = 0;
+    currentPlayer = "";
     gameState = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
     cells.forEach(cell => cell.innerHTML = "");
     cells.forEach(cell => cell.style.background = '#30110D');
@@ -322,14 +323,16 @@ function minimax(board, depth, isMax, alpha, beta) {
  * @return {number} indeks najpovoljnig polja za potez
  */
 function findBestMove(board) {
-    if (firstPlayerCell === 10 && moveNumber === 1) {
-        return 9;
+    if (firstPlayerCell === 5 && moveNumber === 1) {
+        return 6;
     }
+
+    let bestIndexes = [5, 6, 9, 10];
 
     let bestVal = -Infinity;
     let index = -1;
 
-    for (let i = 5; i < 16; i++) {
+    for (let i = 0; i < 16; i++) {
         if (board[i] === "") {
             board[i] = computer;
             moveNumber++;
@@ -337,21 +340,7 @@ function findBestMove(board) {
             board[i] = "";
             moveNumber--;
 
-            if (moveVal > bestVal) {
-                index = i;
-                bestVal = moveVal;
-            }
-        }
-    }
-    for (let i = 0; i < 5; i++) {
-        if (board[i] === "") {
-            board[i] = computer;
-            moveNumber++;
-            let moveVal = minimax([...board], 0, false);
-            board[i] = "";
-            moveNumber--;
-
-            if (moveVal > bestVal) {
+            if (moveVal > bestVal || (moveVal === bestVal && bestIndexes.includes(i))) {
                 index = i;
                 bestVal = moveVal;
             }
