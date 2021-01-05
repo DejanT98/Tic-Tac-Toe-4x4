@@ -323,10 +323,6 @@ function minimax(board, depth, isMax, alpha, beta) {
  * @return {number} indeks najpovoljnig polja za potez
  */
 function findBestMove(board) {
-    if (firstPlayerCell === 5 && moveNumber === 1) {
-        return 6;
-    }
-
     let bestIndexes = [5, 6, 9, 10];
 
     let bestVal = -Infinity;
@@ -340,7 +336,10 @@ function findBestMove(board) {
             board[i] = "";
             moveNumber--;
 
-            if (moveVal > bestVal || (moveVal === bestVal && bestIndexes.includes(i))) {
+            if (moveVal >= bestVal) {
+                if(moveVal >= bestVal && bestIndexes.includes(i)) {
+                    moveVal++;
+                }
                 index = i;
                 bestVal = moveVal;
             }
