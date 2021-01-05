@@ -17,11 +17,17 @@ const computer = "O";
 let gameActive = true;
 let moveNumber = 0;
 let currentPlayer = "";
+/**
+ * Trenuto stanje igre
+ */
 let gameState = ["", "", "", "",
     "", "", "", "",
     "", "", "", "",
     "", "", "", ""];
 
+/**
+ * Niz koji sadrži sve pobedničke kombinacije u igri
+ */
 const winningConditions = [
     [0, 1, 2, 3],
     [4, 5, 6, 7],
@@ -47,20 +53,36 @@ const winningConditions = [
 let random;
 let firstPlayerCell;
 
+/**
+ * Podešavanje prvog igrača u partiji, u slučaju da je računar
+ * pozvaće se funkcija computerClick
+ */
 function setFirstPlayer() {
     clearInterval(random);
     currentPlayer = Math.random() > 0.5 ? player : computer;
     currentPlayerDisplay.innerHTML = currentPlayer;
-    computerClick();
+    if (currentPlayer === computer) {
+        computerClick();
+    }
 }
 
+/**
+ * Simulira klik računara
+ */
 function computerClick() {
     setTimeout(function () {
         if (currentPlayer === computer)
+            /*klikne na prvo polje i pokreće funkciju click
+            * koja kasnije poziva findBestMove
+            */
             cells[0].click();
     }, 500);
 }
 
+/**
+ * Podešava interval koji se izvršava na svakih 100ms.
+ * Poziva se na počeku igre za vreme dok se bira prvi igrač
+ */
 function setRandomInterval() {
     random = setInterval(() => {
         if (currentPlayerDisplay.textContent === player)
@@ -73,18 +95,32 @@ function setRandomInterval() {
 setRandomInterval();
 setTimeout(setFirstPlayer, 3000);
 
+/**
+ * Postavlja potez igrača
+ * @param {HTMLDivElement} clickedCell 
+ * @param {number} clickedCellIndex 
+ */
 function handleCellPlayed(clickedCell, clickedCellIndex) {
     gameState[clickedCellIndex] = currentPlayer;
     clickedCell.innerHTML = currentPlayer;
 }
 
+/**
+ * Vrši promenu trenutnog igrača i povećava broj poteza odigranih u igri
+ */
 function changePlayer() {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
     moveNumber++;
-    computerClick();
     currentPlayerDisplay.innerHTML = currentPlayer;
+    if (currentPlayer === computer) {
+        computerClick();
+    }
 }
 
+/**
+ * Proverava da li je igra završena,
+ * u slučaju da jeste ispisuje poruku sa rezultatom igre
+ */
 function handleResultValidation() {
     let roundWon = false;
     let roundLost = false;
@@ -145,7 +181,12 @@ function handleResultValidation() {
 
     changePlayer();
 }
-
+/**
+ * Izvršava se na klik korisnika ili računara.
+ * Proverava da li je igra aktivna i da li je traženo polje slobodno,
+ * ukoliko su ispunjeni uslovi zauzima to polje
+ * @param  {Event} clickedCellEvent
+ */
 function click(clickedCellEvent) {
     let clickedCell;
     let clickedCellIndex;
@@ -171,7 +212,9 @@ function click(clickedCellEvent) {
     handleCellPlayed(clickedCell, clickedCellIndex);
     handleResultValidation();
 }
-
+/**
+ * Postavlja parametre igre na početne vrednosti
+ */
 function restartGame() {
     gameActive = true;
     moveNumber = 0;
@@ -183,6 +226,10 @@ function restartGame() {
     setTimeout(setFirstPlayer, 3000);
 }
 
+/**
+ * Proverava da li još ima praznih polja
+ * @param {string[]} board
+ */
 function isMovesLeft(board) {
     for (let i = 0; i < 16; i++)
         if (board[i] === "")
@@ -190,6 +237,11 @@ function isMovesLeft(board) {
     return false;
 }
 
+/**
+ * Vraća broj poena u zavisnosti od statusa igre
+ * @param {string[]} board
+ * @return {number}
+ */
 function evaluate(board) {
     for (let i = 0; i <= 18; i++) {
         const winCondition = winningConditions[i];
@@ -208,6 +260,15 @@ function evaluate(board) {
     return 0;
 }
 
+/**
+ * Minimax algoritam
+ * @param {string[]} board 
+ * @param {number} depth 
+ * @param {boolean} isMax 
+ * @param {number} alpha 
+ * @param {number} beta 
+ * @return {number} Najbolji rezultat posle poteza
+ */
 function minimax(board, depth, isMax, alpha, beta) {
     score = evaluate(board);
 
@@ -255,6 +316,11 @@ function minimax(board, depth, isMax, alpha, beta) {
     }
 }
 
+/**
+ * Pronalaženje najboljeg poteza za računar
+ * @param {string[]} board 
+ * @return {number} indeks najpovoljnig polja za potez
+ */
 function findBestMove(board) {
     if (firstPlayerCell === 10 && moveNumber === 1) {
         return 9;
